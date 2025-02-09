@@ -23,8 +23,19 @@ function g = connected_simple_graphs_by_num_edges( num_edges )
                     candidate_graph = graph( candidate_graph_vertex_pairs( :, 1 ), candidate_graph_vertex_pairs( :, 2 ) );
                     % if the candidate graph is connected
                     if all( conncomp( candidate_graph ) == 1 )
-                        % All the vertices are in bin 1, append it to g
-                        g{ end + 1, 1 } = candidate_graph;
+                        % All the vertices are in bin 1, 
+                        % if it is not isomorphic to an existing graph
+                        is_distinct = true;
+                        for i = 1 : length( g )
+                            if isisomorphic( candidate_graph, g{ i } )
+                                is_distinct = false;
+                                break
+                            end
+                        end
+                        if is_distinct
+                            % append it to g
+                            g{ end + 1, 1 } = candidate_graph;
+                        end
                     end
                 end
             end
