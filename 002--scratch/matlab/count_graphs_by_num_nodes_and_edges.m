@@ -6,8 +6,8 @@ function c = count_graphs_by_num_nodes_and_edges( graphs )
     num_nodes = zeros( num_graphs, 1 );
     num_edges = zeros( num_graphs, 1 );
     for i = 1 : num_graphs
-        num_nodes( i ) = height( graphs{ i }.Nodes );
-        num_edges( i ) = height( graphs{ i }.Edges );
+        num_nodes( i ) = numnodes( graphs{ i } );
+        num_edges( i ) = numedges( graphs{ i } );
     end
     c = zeros( max( num_nodes ), max( num_edges ) );
     for i = 1 : num_graphs
