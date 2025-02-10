@@ -1,9 +1,9 @@
-g1 = distinct_connected_simple_graphs_by_num_edges( 1 );
-g2 = distinct_connected_simple_graphs_by_num_edges( 2 );
-g3 = distinct_connected_simple_graphs_by_num_edges( 3 );
-g4 = distinct_connected_simple_graphs_by_num_edges( 4 );
-g5 = distinct_connected_simple_graphs_by_num_edges( 5 );
-g1_5 = distinct_connected_simple_graphs_by_num_edges( 1 : 5 );
+g1 = generate_distinct_connected_simple_graphs_by_num_edges( 1 );
+g2 = generate_distinct_connected_simple_graphs_by_num_edges( 2 );
+g3 = generate_distinct_connected_simple_graphs_by_num_edges( 3 );
+g4 = generate_distinct_connected_simple_graphs_by_num_edges( 4 );
+g5 = generate_distinct_connected_simple_graphs_by_num_edges( 5 );
+g1_5 = generate_distinct_connected_simple_graphs_by_num_edges( 1 : 5 );
 
 c1 = count_graphs_by_num_nodes_and_edges( g1 );
 c2 = count_graphs_by_num_nodes_and_edges( g2 );
@@ -24,4 +24,4 @@ c1_5_nauthy = ...
 
 assert( all( c1_5 == c1_5_nauthy, [ 1, 2 ] ), "Fail, nauty disagrees" );
 
-fprintf( "test_1 OK\n" );
+fprintf( "OK\n" );
