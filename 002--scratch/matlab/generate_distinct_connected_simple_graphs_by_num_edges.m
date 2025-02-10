@@ -1,4 +1,4 @@
-function g = distinct_connected_simple_graphs_by_num_edges( num_edges )
+function g = generate_distinct_connected_simple_graphs_by_num_edges( num_edges )
 %SIMPLE_GRAPHS_BY_NUM_EDGES
 %   Simple graphs are graphs with no single virtex loops and with no two
 %   edges share the same vertices. Connected graphs are those for which

@@ -54,8 +54,8 @@ function o_graphs = distinct_designations_of_two_terminal_nodes( i_graphs )
                        candidate_two_terminal_graph, ...
                        two_terminal_graphs ...
                    )
-                   two_terminal_graphs{ 1 + end } = candidate_two_terminal_graph; %#ok<AGROW> 
-                   o_graphs{ 1 + end } = candidate_two_terminal_graph; %#ok<AGROW> 
+                   two_terminal_graphs{ 1 + end, 1 } = candidate_two_terminal_graph; %#ok<AGROW> 
+                   o_graphs{ 1 + end, 1 } = candidate_two_terminal_graph; %#ok<AGROW> 
                 end
             end
         end

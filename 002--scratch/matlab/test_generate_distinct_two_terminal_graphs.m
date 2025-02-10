@@ -20,3 +20,8 @@ assert( length( hq ) == 2, "Fail 2" );
 gw = graph( [ 1 2 3 1 2 3 ], [ 2 3 1 4 4 4 ] );
 hw = generate_distinct_two_terminal_graphs( { gw } );
 assert( length( hq ) == 2, "Fail 3" );
+
+g_1_5 = generate_distinct_connected_simple_graphs_by_num_edges( 1 : 5 );
+h_1_5 = generate_distinct_two_terminal_graphs( g_1_5 );
+cg_1_5 = count_graphs_by_num_nodes_and_edges( g_1_5 );
+ch_1_5 = count_graphs_by_num_nodes_and_edges( h_1_5 );
