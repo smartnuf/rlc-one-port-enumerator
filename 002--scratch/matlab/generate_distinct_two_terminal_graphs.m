@@ -1,5 +1,5 @@
-function o_graphs = distinct_designations_of_two_terminal_nodes( i_graphs )
-%DISTINCT_DESIGNATIONS_OF_TWO_TERMINAL_NODES
+function o_graphs = generate_distinct_two_terminal_graphs( i_graphs )
+%GENERATE_DISTINCT_TWO_TERMINAL_GRAPHS
 %   i_graphs - Input graphs to have two nodes designated as terminal 
 %   (port) nodes.
     % We accept a cell array of graphs of any dimensions, but process
