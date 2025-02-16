@@ -28,7 +28,7 @@ function solSet = EnumerateNetworks(vertices, edges, nextVertex, remainingCompon
         isConnected = all(conncomp(G)==1);
     end
     if isConnected
-        solSet{end+1} = struct('vertices', vertices, 'edges', {edges});
+        solSet{end+1,1} = struct('vertices', vertices, 'edges', {edges});
     end
     
     % Generate candidate new edges.
@@ -85,6 +85,6 @@ function solSet = EnumerateNetworks(vertices, edges, nextVertex, remainingCompon
         end
         
         % Recurse
-        solSet = [solSet, EnumerateNetworks(newVertices, newEdges, newNext, remainingComponents)];
+        solSet = [ solSet; EnumerateNetworks(newVertices, newEdges, newNext, remainingComponents) ];
     end
 end
