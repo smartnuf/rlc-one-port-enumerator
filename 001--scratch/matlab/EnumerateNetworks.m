@@ -1,8 +1,10 @@
-function solSet = EnumerateNetworks(vertices, edges, nextVertex, remainingComponents)
+function solSet = EnumerateNetworks( vertices, edges, nextVertex, remainingComponents, is_for_new_node )
     % vertices: vector of vertex labels (e.g. [1 2 ...])
     % edges: cell array of edges, each is {v, w, type} with type a char ('R','L','C')
     % nextVertex: integer label for the next new vertex
     % remainingComponents: structure with fields R, L, C (max allowed counts)
+    % is_for_new_node - the last branch added is dangaling, or is a
+    %                   an unconnected node.
     % solSet: a cell array collecting complete networks (here, every connected network)
 
     % A first implementation suggested by ChatGPT -- using a recursive 
@@ -16,19 +18,31 @@ function solSet = EnumerateNetworks(vertices, edges, nextVertex, remainingCompon
     % components).
     %
     % I'll refactor to make it readable...
+%    disp( vertices); 
+%    for i = 1 : length( edges )
+%        disp( edges{i} );
+%    end
+%    disp( nextVertex );
+%    disp( remainingComponents );
+%    disp( is_for_new_node );
 
     solSet = {};
     
-    % Check connectivity: build an undirected graph ignoring labels
-    if isempty(edges)
-        isConnected = false; % no edge => not connected (unless vertices == 1)
-    else
+
+    if isempty( edges ) || is_for_new_node
+        % We won't add it to the solution set anyway, so we needn't
+        % check connectivity
+    else 
+        % Check connectivity: build an undirected graph ignoring labels
         edgePairs = cell2mat(cellfun(@(e) sort([e{1}, e{2}]), edges, 'UniformOutput', false));
         G = graph(edgePairs(:,1), edgePairs(:,2));
         isConnected = all(conncomp(G)==1);
-    end
-    if isConnected
-        solSet{end+1,1} = struct('vertices', vertices, 'edges', {edges});
+        % We know the node is connected without testing
+        if ~ isConnected
+%           assert( isConnected, "Unexpected floating node" );
+        else
+            solSet{end+1,1} = struct('vertices', vertices, 'edges', {edges});
+        end
     end
     
     % Generate candidate new edges.
@@ -79,12 +93,14 @@ function solSet = EnumerateNetworks(vertices, edges, nextVertex, remainingCompon
         if cand{1} == nextVertex || cand{2} == nextVertex
             newVertices = [vertices, nextVertex];
             newNext = nextVertex + 1;
+            new_node = true;
         else
             newVertices = vertices;
             newNext = nextVertex;
+            new_node = false;
         end
         
         % Recurse
-        solSet = [ solSet; EnumerateNetworks(newVertices, newEdges, newNext, remainingComponents) ];
+        solSet = [ solSet; EnumerateNetworks(newVertices, newEdges, newNext, remainingComponents, new_node ) ];
     end
 end

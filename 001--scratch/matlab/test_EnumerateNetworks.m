@@ -1,4 +1,4 @@
-nets_1_1_1 = EnumerateNetworks( [1 2], {}, 3, struct( 'R', 1, 'L', 1, 'C', 1 ) );
+nets_1_1_1 = EnumerateNetworks( [1 2], {}, 3, struct( 'R', 1, 'L', 1, 'C', 1 ), false );
 
 nets_1_1_1_as_string = nets_to_string( nets_1_1_1 );
 load( "data/ref_nets_1_1_1_as_string.mat" );
