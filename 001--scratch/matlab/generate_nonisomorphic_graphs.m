@@ -23,8 +23,8 @@ function generate_nonisomorphic_graphs ( N, M, showFigures )
         % Create the adjacency matrix
         adj_matrix = zeros ( N );
         for j = 1:M
-            adj_matrix ( edge_subset ( j, 1 ), edge_subset ( j, 2 )) = 1;
-            adj_matrix ( edge_subset ( j, 2 ), edge_subset ( j, 1 )) = 1;
+            adj_matrix ( edge_subset ( j, 1 ), edge_subset ( j, 2 ) ) = 1;
+            adj_matrix ( edge_subset ( j, 2 ), edge_subset ( j, 1 ) ) = 1;
         end
 
         % Check if the graph is connected
@@ -47,10 +47,10 @@ function generate_nonisomorphic_graphs ( N, M, showFigures )
     end
 
     % Print the number of unique graphs
-    fprintf...
+    fprintf ...
     ( ...
         "There are %d unique graphs of %d nodes and %d edges\n", ...
-        length( unique_graphs ), ...
+        length ( unique_graphs ), ...
         N, ...
         M ...
     );
@@ -59,8 +59,8 @@ function generate_nonisomorphic_graphs ( N, M, showFigures )
     if showFigures
         for i = 1:length ( unique_graphs )
             figure;
-            plot ( unique_graphs { i });
-            title ( sprintf ( 'Graph %d', i ));
+            plot ( unique_graphs { i } );
+            title ( sprintf ( 'Graph %d', i ) );
         end
     end
 end
