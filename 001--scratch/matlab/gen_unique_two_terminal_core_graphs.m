@@ -5,6 +5,13 @@ function gen_unique_two_terminal_core_graphs ( N1, N2, M1, M2, show_figures )
     % Only graphs in which every non-terminal node lies on at least one simple path between
     % nodes 1 and 2 are collected (i.e. graphs without dangling branches).
     %
+    % Graphs with different sorted degree sequences cannot be isomorphic, 
+    % so we immediately separate them.
+    %
+    % We use the sorted degree sequence as classification invariant 
+    % to group graphs into buckets, reducing the number of expensive 
+    % isomorphism tests for any candidate graph to those in its bucket
+
     % If show_figures is not provided, default to false.
     if ( nargin < 5 )
         show_figures = false;
@@ -21,8 +28,9 @@ function gen_unique_two_terminal_core_graphs ( N1, N2, M1, M2, show_figures )
             edges = nchoosek ( 1 : N, 2 );
             num_edges = size ( edges, 1 );
 
-            % Initialize a cell array to store the unique graphs
-            unique_graphs = { };
+            % Initialize a containers.Map for invariants.
+            % Each key is a string invariant; each value is a cell array of graphs
+            invariant_map = containers.Map ( 'KeyType', 'char', 'ValueType', 'any' );
 
             if ( M <= num_edges )
                 % Iterate over all possible subsets of edges of size M
@@ -53,8 +61,8 @@ function gen_unique_two_terminal_core_graphs ( N1, N2, M1, M2, show_figures )
 
                     % Check if the graph is connected
                     if ( all ( conncomp ( G ) == 1 ) )
-                        % For every internal node (nodes 3 to N), check if there is a simple path 
-                        % from node 1 to node 2 that passes through that node.
+                        % For every internal node (nodes 3 to N), check that there exists at least one
+                        % simple path from node 1 to node 2 that passes through that node.
                         skip_graph = false;
                         for v = 3 : N
                             if ( ~ has_path_through ( G, v ) )
@@ -67,25 +75,39 @@ function gen_unique_two_terminal_core_graphs ( N1, N2, M1, M2, show_figures )
                             continue;
                         end
 
-                        % Check if the graph is isomorphic to any existing graph in unique_graphs,
-                        % using the 'NodeVariables' option to ensure that terminal nodes are preserved.
-                        is_unique = true;
-                        for k = 1 : length ( unique_graphs )
-                            if ( isisomorphic ( G, unique_graphs { k }, 'NodeVariables', { 'Label' } ) )
-                                is_unique = false;
-                                break;
-                            end
-                        end
+                        % Compute an invariant for classification: here, the sorted degree sequence.
+                        key = get_invariant ( G );
 
-                        % Add the graph to unique_graphs if it's unique
-                        if ( is_unique )
-                            unique_graphs { end + 1 } = G;
+                        % Use the invariant_map to avoid unnecessary isomorphism tests.
+                        if ( ~ isKey ( invariant_map, key ) )
+                            invariant_map ( key ) = { G };
+                        else
+                            bucket = invariant_map ( key );
+                            is_unique = true;
+                            for k = 1 : length ( bucket )
+                                if ( isisomorphic ( G, bucket { k }, 'NodeVariables', { 'Label' } ) )
+                                    is_unique = false;
+                                    break;
+                                end
+                            end
+                            if ( is_unique )
+                                bucket { end + 1 } = G;
+                                invariant_map ( key ) = bucket;
+                            end
                         end
                     end
                 end
             end
 
-            % Store the count of unique graphs
+            % Combine graphs from all invariant buckets
+            unique_graphs = { };
+            keysList = keys ( invariant_map );
+            for k = 1 : length ( keysList )
+                bucket = invariant_map ( keysList { k } );
+                unique_graphs = [ unique_graphs, bucket ]; %#ok<AGROW>
+            end
+
+            % Store the count of unique graphs for this combination of N and M
             unique_graph_counts ( N - N1 + 1, M - M1 + 1 ) = length ( unique_graphs );
 
             % Display the unique graphs if show_figures is true
@@ -106,7 +128,7 @@ function gen_unique_two_terminal_core_graphs ( N1, N2, M1, M2, show_figures )
     row_totals = sum ( unique_graph_counts, 2 );
 
     % Print the statistics
-    fprintf ( 'Number of unique two-terminal core graphs with %d to %d nodes and %d to %d edges:\n', N1, N2, M1, M2 );
+    fprintf ( 'Number of unique two-terminal core graphs (optimized) with %d to %d nodes and %d to %d edges:\n', N1, N2, M1, M2 );
     fprintf ( 'N\\E\t' );
     for M = M1 : M2
         fprintf ( '%d\t', M );
@@ -163,5 +185,12 @@ function flag = has_path_through ( G, v )
         end
     end
 
+end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Nested helper function to compute a simple invariant for graph classification.
+% Here we use the sorted degree sequence as a string.
+function key = get_invariant ( G )
+    d = degree ( G );
+    key = mat2str ( sort ( d ) );
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
