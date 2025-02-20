@@ -1,4 +1,4 @@
-function gen_unique_two_terminal_core_graphs ( N1, N2, M1, M2, show_figures )
+function unique_graphs = gen_unique_two_terminal_core_graphs ( N1, N2, M1, M2, show_figures )
     % This function generates non-isomorphic connected simple graphs with N1 to N2 nodes 
     % and M1 to M2 edges.
     % Nodes 1 and 2 are treated as terminal nodes, and node labels are used in isomorphism tests.
@@ -8,9 +8,9 @@ function gen_unique_two_terminal_core_graphs ( N1, N2, M1, M2, show_figures )
     % Graphs with different sorted degree sequences cannot be isomorphic, 
     % so we immediately separate them.
     %
-    % We use the sorted degree sequence as classification invariant 
+    % We use the sorted degree sequence as a classification invariant 
     % to group graphs into buckets, reducing the number of expensive 
-    % isomorphism tests for any candidate graph to those in its bucket
+    % isomorphism tests for any candidate graph to those in its bucket.
 
     % If show_figures is not provided, default to false.
     if ( nargin < 5 )
@@ -115,6 +115,7 @@ function gen_unique_two_terminal_core_graphs ( N1, N2, M1, M2, show_figures )
                 for i = 1 : length ( unique_graphs )
                     figure;
                     plot ( unique_graphs { i } );
+                    highlight ( h, [ 1, 2 ], 'NodeColor', 'r' );
                     title ( sprintf ( 'Graph %d with %d nodes and %d edges', i, N, M ) );
                 end
             end
