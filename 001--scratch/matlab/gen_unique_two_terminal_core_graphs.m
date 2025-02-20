@@ -9,16 +9,10 @@ function unique_graphs = gen_unique_two_terminal_core_graphs( N1, N2, M1, M2 )
     % separate them by using the sorted degree sequence as a classification invariant.
     % This reduces the number of expensive isomorphism tests.
     %
-    % The function returns a cell array, where each element is a struct with fields:
+    % The function returns a cell array where each element is a struct with fields:
     %   - G : The MATLAB graph object.
     %   - N : The number of nodes in the graph.
     %   - M : The number of edges in the graph.
-    %
-    % Usage:
-    %   unique_graphs = gen_unique_two_terminal_core_graphs( N1, N2, M1, M2 );
-    
-    % Initialize a matrix to store the counts of unique graphs (for reporting purposes)
-    unique_graph_counts = zeros( N2 - N1 + 1, M2 - M1 + 1 );
     
     % Global container for all unique graphs (with classification info)
     all_unique_graphs = { };
@@ -27,7 +21,7 @@ function unique_graphs = gen_unique_two_terminal_core_graphs( N1, N2, M1, M2 )
     for N = N1 : N2
         % For each number of edges from M1 to M2.
         for M = M1 : M2
-            % Generate all possible combinations of edges (from a complete graph on N nodes).
+            % Generate all possible combinations of edges (for a complete graph on N nodes)
             edges = nchoosek( 1 : N, 2 );
             num_edges = size( edges, 1 );
             
@@ -110,37 +104,12 @@ function unique_graphs = gen_unique_two_terminal_core_graphs( N1, N2, M1, M2 )
                 unique_graphs_current = [ unique_graphs_current, bucket ]; %#ok<AGROW>
             end
             
-            % Store the count of unique graphs for this combination of N and M.
-            unique_graph_counts( N - N1 + 1, M - M1 + 1 ) = length( unique_graphs_current );
-            
             % Append each graph (with its classification info) to the overall list.
             for idx = 1 : length( unique_graphs_current )
                 all_unique_graphs{ end + 1 } = struct( 'G', unique_graphs_current{ idx }, 'N', N, 'M', M );
             end
         end
     end
-    
-    % Optionally, print summary statistics.
-    column_totals = sum( unique_graph_counts, 1 );
-    row_totals = sum( unique_graph_counts, 2 );
-    fprintf( 'Number of unique two-terminal core graphs (optimized) with %d to %d nodes and %d to %d edges:\n', N1, N2, M1, M2 );
-    fprintf( 'N\\E\t' );
-    for M = M1 : M2
-        fprintf( '%d\t', M );
-    end
-    fprintf( 'Tot\n' );
-    for N = N1 : N2
-        fprintf( '%d\t', N );
-        for M = M1 : M2
-            fprintf( '%d\t', unique_graph_counts( N - N1 + 1, M - M1 + 1 ) );
-        end
-        fprintf( '%d\n', row_totals( N - N1 + 1 ) );
-    end
-    fprintf( 'Tot\t' );
-    for total = column_totals
-        fprintf( '%d\t', total );
-    end
-    fprintf( '%d\n', sum( column_totals ) );
     
     % Return the aggregated unique graphs with classification info.
     unique_graphs = all_unique_graphs;
