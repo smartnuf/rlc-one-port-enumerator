@@ -25,6 +25,10 @@ the file name will be of the form \"v5_e7_l2.g6\" (using the first letter of eac
 If keysLabels is omitted, the file name is built by joining the key values with underscores. \
 This follows a terse naming convention similar to nauty.";
 
+GraphBinCounts::usage =
+  "GraphBinCounts[grouped] returns an association with the same keys as the input grouped association (from IndexGraphsByKeys or AggregateIndex), \
+but with each bucket replaced by the count (Length) of the graphs in that bucket.";
+
 leafCount::usage =
   "leafCount[graph] returns the number of leaf nodes (vertices with degree 1) in the graph.";
 
@@ -61,6 +65,10 @@ AggregateIndex[grouped_Association, conds_List] := Module[{keySelectFunction},
   KeySelect[grouped, keySelectFunction]
 ];
 
+(* 5. BinCounts: Count the number of graphs in each bin of a grouped association. *)
+GraphBinCounts[grouped_Association] := 
+  AssociationThread[Keys[grouped], Map[Length, Values[grouped]]];
+
 (* Helper: Given a grouping key and corresponding property names, produce a terse file name.
    For example, with keysLabels {"VertexCount","EdgeCount","LeafCount"} and key {5,7,2},
    this returns "v5_e7_l2.g6". *)
@@ -73,7 +81,7 @@ keyToFileName[key_List, keysLabels_List] :=
 (* Overloaded helper: If no keysLabels are provided, join the key values with underscores. *)
 keyToFileName[key_List] := StringJoin @@ Riffle[ToString /@ key, "_"] <> ".g6";
 
-(* 5. ExportIndexedSubsets: Export each bucket (group) from an indexed association (as produced by IndexGraphsByKeys) 
+(* 6. ExportIndexedSubsets: Export each bucket (group) from an indexed association (as produced by IndexGraphsByKeys) 
    to a Graph6 file in outDir. If keysLabels is provided, use it to build the file name. *)
 ExportIndexedSubsets[indexed_Association, outDir_String, keysLabels_: {}] := Module[
   {fileName, filePath},
