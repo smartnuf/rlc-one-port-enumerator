@@ -1,6 +1,8 @@
 (* ::Package:: *)
 
 (* ::Package:: *)
+(**)
+
 
 BeginPackage["GraphCollectionTools`"]
 
@@ -17,6 +19,11 @@ GroupBy is used to return an Association whose keys are lists of these property 
 AggregateIndex::usage =
   "AggregateIndex[grouped, conds] aggregates groups from an association (as returned by IndexGraphsByKeys) based on conditions. \
 conds is a list of {min, max} ranges, one per key. Only groups whose key (a list of numbers) satisfies Between for each element are returned.";
+
+twoTerminalGraphQ::usage = 
+  "twoTerminalGraphQ[g] tests whether the graph g has exactly two leaf (terminal) nodes, and whether all other nodes lie on at least \
+one path between the two terminals. This ensures that any two-terminal network represented by the graph has no 'dangling' subtrees. \ 
+These dangling subtrees (most commonly single edge branches) have no affect on the driving point impedance, and are therefore redundant."
 
 ExportIndexedSubsets::usage =
   "ExportIndexedSubsets[indexed, outDir, keysLabels] exports each bucket in the grouped association (such as the output of IndexGraphsByKeys) \
@@ -68,6 +75,17 @@ AggregateIndex[grouped_Association, conds_List] := Module[{keySelectFunction},
 (* 5. BinCounts: Count the number of graphs in each bin of a grouped association. *)
 GraphBinCounts[grouped_Association] := 
   AssociationThread[Keys[grouped], Map[Length, Values[grouped]]];
+
+(*Helper:Check if vertex v lies on at least one simple path from t1 to t2*)
+onPathBetweenTerminalsQ[g_,v_,t1_,t2_]:=Module[{paths},paths=FindPath[g,t1,t2];
+Or@@(MemberQ[#,v]&/@paths)];
+
+(*twoTerminalGraphQ:Returns True if g has exactly two leaves and every internal vertex lies on at least one t1\[Dash]t2 path.*)
+twoTerminalGraphQ[g_]:=Module[{leaves,t1,t2,internals},leaves=Select[VertexList[g],VertexDegree[g,#]==1&];
+If[Length[leaves]!=2,Return[False]];
+{t1,t2}=leaves;
+internals=Complement[VertexList[g],{t1,t2}];
+And @@ (onPathBetweenTerminalsQ[g,#,t1,t2]&/@internals)];
 
 (* Helper: Given a grouping key and corresponding property names, produce a terse file name.
    For example, with keysLabels {"VertexCount","EdgeCount","LeafCount"} and key {5,7,2},
