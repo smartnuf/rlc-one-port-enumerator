@@ -80,21 +80,29 @@ def certificate_incidence_bipartite(G: nx.MultiGraph, s: int, t: int) -> str:
 # ----- "basic" test: every edge-copy lies on some simple s–t path -----
 def edge_copy_on_st_path(G: nx.MultiGraph, s: int, t: int, u: int, v: int, key) -> bool:
     """
-    Exact test for multigraphs:
-    e=(u,v,key) lies on some simple s–t path iff in H = G with that copy removed,
-    (s~u and v~t) or (s~v and u~t), where ~ is connectivity in H.
+    Exact: e=(u,v,key) lies on some simple s–t path iff the incidence graph B has
+    a simple s->t path that goes through the unique edge-vertex x_e.
     """
-    # remove only THIS edge copy
-    H = G.copy()
-    H.remove_edge(u, v, key)
+    # Build incidence graph B
+    n = G.number_of_nodes()
+    edge_list = list(G.edges(keys=True))
+    m = len(edge_list)
+    x_index = {edge_list[i]: n + i for i in range(m)}  # edge-copy -> its x_e vertex id
 
-    def connected(a, b):
-        try:
-            return nx.has_path(H, a, b)
-        except nx.NodeNotFound:
-            return False
+    B = nx.Graph()
+    B.add_nodes_from(range(n + m))
+    for (a, b, k2) in edge_list:
+        xe = x_index[(a, b, k2)]
+        B.add_edge(a, xe)
+        B.add_edge(b, xe)
 
-    return (connected(s, u) and connected(v, t)) or (connected(s, v) and connected(u, t))
+    xe = x_index[(u, v, key)]
+    # Enumerate simple s->t paths and check if any contains xe
+    # Max length is 2*m+1 (alternates vertex, edge, ...), so set a safe cutoff
+    for path in nx.all_simple_paths(B, s, t, cutoff=2 * m + 1):
+        if xe in path:
+            return True
+    return False
 
 def is_basic_for_terminals(G: nx.MultiGraph, s: int, t: int) -> bool:
     for (u,v,k) in G.edges(keys=True):
